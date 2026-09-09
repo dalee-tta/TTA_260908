@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 *.db
 .env
+.env*
 .venv/
 venv/
 .vercel
