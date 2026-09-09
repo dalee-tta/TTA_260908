@@ -10,7 +10,10 @@ sys.path.insert(0, ROOT)
 class TodoAppTest(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
+        os.environ.pop("DATABASE_URL", None)  # 테스트는 항상 SQLite
         os.environ["TODO_DB_PATH"] = os.path.join(self._tmp.name, "test.db")
+        import db
+        db.reset_init_flag()
         from app import app
         app.config["TESTING"] = True
         self.client = app.test_client()
@@ -103,7 +106,7 @@ class TodoAppTest(unittest.TestCase):
         self.assertEqual(self.client.get("/api/todos").get_json()["counts"]["total"], 1)
 
     def test_health(self):
-        self.assertEqual(self.client.get("/health").get_json(), {"status": "ok"})
+        self.assertEqual(self.client.get("/health").get_json(), {"status": "ok", "database": "sqlite"})
 
 
 if __name__ == "__main__":

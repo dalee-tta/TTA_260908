@@ -144,7 +144,7 @@ def api_clear_done():
 
 @app.get("/health")
 def health():
-    return jsonify(status="ok")
+    return jsonify(status="ok", database=db.backend_name())
 
 
 if __name__ == "__main__":

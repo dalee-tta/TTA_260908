@@ -44,6 +44,23 @@ todo_app/
 ```
 
 ## 저장소
-- 기본: 앱 폴더의 `todo.db` (SQLite)
-- 환경변수 `TODO_DB_PATH` 로 경로 변경 가능
-- Vercel 환경(`VERCEL` 변수 존재)에서는 `/tmp/todo.db` 사용 — 서버리스 특성상 영구 저장이 아니므로, 운영에서는 외부 DB(Supabase 등) 연결 필요
+`db.py` 가 환경변수를 보고 백엔드를 자동 선택합니다.
+
+| 조건 | 백엔드 | 용도 |
+|---|---|---|
+| `DATABASE_URL` 설정됨 | PostgreSQL (Supabase) | 운영(Vercel) |
+| 미설정 | SQLite (`todo.db`, `TODO_DB_PATH` 로 경로 변경) | 로컬 개발·테스트 |
+
+`/health` 응답의 `database` 필드로 현재 어떤 백엔드가 쓰이는지 확인할 수 있습니다.
+
+### Supabase 연결
+Vercel 서버리스는 IPv4 전용이므로 **트랜잭션 풀러(포트 6543)** 주소를 사용합니다.
+```
+DATABASE_URL=postgresql://postgres.<ref>:<password>@<region>.pooler.supabase.com:6543/postgres?sslmode=require
+```
+테이블은 첫 요청 시 `CREATE TABLE IF NOT EXISTS` 로 자동 생성되며, 트랜잭션 풀러 호환을 위해
+psycopg 의 서버측 prepared statement 는 비활성화되어 있습니다.
+
+## 배포
+- GitHub `main` 푸시 → Vercel 자동 배포
+- 프로덕션: https://tta260908ver-three.vercel.app
