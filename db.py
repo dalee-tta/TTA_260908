@@ -18,7 +18,9 @@ _initialized = False
 
 # ---------------------------------------------------------------- 백엔드 판별
 def get_database_url() -> str | None:
-    return os.environ.get("DATABASE_URL") or None
+    # 환경변수 편집 도구가 BOM(U+FEFF)이나 공백을 섞어 넣는 경우가 있어 방어적으로 제거
+    url = (os.environ.get("DATABASE_URL") or "").strip().lstrip("\ufeff").strip()
+    return url or None
 
 
 def is_postgres() -> bool:
